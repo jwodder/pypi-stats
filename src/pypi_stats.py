@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-List PyPI package download stats
+Show download stats for PyPI packages
 
 Visit <https://github.com/jwodder/pypi-stats> for more information.
 """
@@ -99,7 +99,7 @@ class TableFormatter:
 )
 @click.argument("package", nargs=-1)
 def main(fmt, user, package, sortby):
-    """Show downloads stats for PyPI packages"""
+    """Show download stats for PyPI packages"""
     pkgs = iter_packages(user, package)
     if sortby == "name":
         pkgs = sorted(pkgs)
