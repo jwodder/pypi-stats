@@ -1,9 +1,15 @@
 #!/usr/bin/env python3
-__requires__ = [
-    "click >= 7.0",
-    "pypistats ~= 0.12.0",
-    "txtble ~= 0.11",
-]
+"""
+List PyPI package download stats
+
+Visit <https://github.com/jwodder/pypi-stats> for more information.
+"""
+
+__version__ = "0.1.0.dev1"
+__author__ = "John Thorvald Wodder II"
+__author_email__ = "pypi-stats@varonathe.org"
+__license__ = "MIT"
+__url__ = "https://github.com/jwodder/pypi-stats"
 
 from collections import namedtuple
 import csv
@@ -28,7 +34,7 @@ class CSVFormatter:
         self.out.writeheader()
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(self, *_exc):
         return None
 
     def add_row(self, pstats):
@@ -45,7 +51,7 @@ class TableFormatter:
     def __enter__(self):
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(self, exc_type, _exc_value, _traceback):
         if exc_type is None:
             print(self.tbl)
 
