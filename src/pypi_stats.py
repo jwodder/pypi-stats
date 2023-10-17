@@ -16,6 +16,7 @@ import csv
 import json
 from operator import attrgetter
 import sys
+from types import TracebackType
 from xmlrpc.client import ServerProxy
 import click
 import pypistats
@@ -34,7 +35,12 @@ class CSVFormatter:
         self.out.writeheader()
         return self
 
-    def __exit__(self, *_exc):
+    def __exit__(
+        self,
+        _exc_type: type[BaseException] | None,
+        _exc_val: BaseException | None,
+        _exc_tb: TracebackType | None,
+    ) -> None:
         return None
 
     def add_row(self, pstats):
@@ -51,7 +57,12 @@ class TableFormatter:
     def __enter__(self):
         return self
 
-    def __exit__(self, exc_type, _exc_value, _traceback):
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        _exc_val: BaseException | None,
+        _exc_tb: TracebackType | None,
+    ) -> None:
         if exc_type is None:
             print(self.tbl)
 
