@@ -70,7 +70,7 @@ class TableFormatter:
         self.tbl.append(pstats)
 
 
-@click.command()
+@click.command(context_settings={"help_option_names": ["-h", "--help"]})
 @click.option(
     "-A",
     "--sort-alpha",
