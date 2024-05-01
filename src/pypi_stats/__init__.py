@@ -5,7 +5,7 @@ Visit <https://github.com/jwodder/pypi-stats> for more information.
 """
 
 from __future__ import annotations
-from collections.abc import Iterator, Sequence
+from collections.abc import Callable, Iterable, Iterator, Sequence
 import csv
 from dataclasses import asdict, astuple, dataclass
 import json
@@ -131,13 +131,16 @@ class TableFormatter:
 )
 @click.argument("package", nargs=-1)
 def main(
-    fmt: Formatter, user: tuple[str, ...], package: tuple[str, ...], sortby: str
+    fmt: Callable[[], Formatter],
+    user: tuple[str, ...],
+    package: tuple[str, ...],
+    sortby: str,
 ) -> None:
     """Show download stats for PyPI packages"""
-    pkgs = iter_packages(user, package)
+    pkgs: Iterable[str] = iter_packages(user, package)
     if sortby == "name":
         pkgs = sorted(pkgs)
-    stats = map(get_package_stats, pkgs)
+    stats: Iterable[PackageStats] = map(get_package_stats, pkgs)
     if sortby == "downloads":
         stats = sorted(stats, key=attrgetter("last_month"), reverse=True)
     with fmt() as formatter:
@@ -150,7 +153,11 @@ def iter_packages(users: Sequence[str], packages: Sequence[str]) -> Iterator[str
     if users:
         with ServerProxy("https://pypi.org/pypi") as pypi_xml:
             for u in users:
-                for _, pkg in pypi_xml.user_packages(u):
+                res = pypi_xml.user_packages(u)
+                assert isinstance(res, list)
+                for r in res:
+                    assert isinstance(r, list)
+                    pkg = res[1]
                     assert isinstance(pkg, str)
                     if pkg not in seen:
                         yield pkg
