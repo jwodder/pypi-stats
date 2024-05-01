@@ -129,6 +129,12 @@ class TableFormatter:
     multiple=True,
     help="Show packages belonging to the given PyPI user",
 )
+@click.version_option(
+    __version__,
+    "-V",
+    "--version",
+    message="%(prog)s %(version)s",
+)
 @click.argument("package", nargs=-1)
 def main(
     fmt: Callable[[], Formatter],
