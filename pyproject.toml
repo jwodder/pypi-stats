@@ -27,6 +27,10 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: Implementation :: CPython",
     "License :: OSI Approved :: MIT License",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Topic :: System :: Software Distribution",
+    "Topic :: Utilities",
     "Typing :: Typed",
 ]
 
