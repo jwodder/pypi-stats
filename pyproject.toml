@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 name = "pypi-stats"
 dynamic = ["version"]
 description = "Show download stats for PyPI packages"
-readme = "README.md"
+readme = "README.rst"
 requires-python = ">=3.11"
 license = "MIT"
 license-files = { paths = ["LICENSE"] }
