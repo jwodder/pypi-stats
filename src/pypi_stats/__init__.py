@@ -1,6 +1,13 @@
 """
 Show download stats for PyPI packages
 
+``pypi-stats`` (note hyphen) is a wrapper around pypistats_ (note non-hyphen)
+for making API requests to https://pypistats.org (note .org) to fetch recent
+download stats for given PyPI packages (and/or packages belonging to given PyPI
+users), outputting either a CSV file or an ASCII table.
+
+.. _pypistats: https://github.com/hugovk/pypistats
+
 Visit <https://github.com/jwodder/pypi-stats> for more information.
 """
 
@@ -97,7 +104,7 @@ class TableFormatter:
     "--sort-alpha",
     "sortby",
     flag_value="name",
-    help="Sort packages alphabetically",
+    help="Sort packages alphabetically by name",
 )
 @click.option(
     "-C",
@@ -127,7 +134,8 @@ class TableFormatter:
     "-u",
     "--user",
     multiple=True,
-    help="Show packages belonging to the given PyPI user",
+    help="Get stats for packages owned or maintained by the given PyPI user",
+    metavar="USER",
 )
 @click.version_option(
     __version__,
@@ -142,7 +150,15 @@ def main(
     package: tuple[str, ...],
     sortby: str,
 ) -> None:
-    """Show download stats for PyPI packages"""
+    """
+    Show download stats for PyPI packages.
+
+    ``pypi-stats`` queries https://pypistats.org for the recent download stats
+    for each PyPI package named on the command line, outputting the number of
+    downloads for each one in the last month, week, and day.
+
+    Visit <https://github.com/jwodder/pypi-stats> for more information.
+    """
     pkgs: Iterable[str] = iter_packages(user, package)
     if sortby == "name":
         pkgs = sorted(pkgs)
