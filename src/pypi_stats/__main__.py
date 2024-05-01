@@ -161,7 +161,7 @@ def iter_packages(users: Sequence[str], packages: Sequence[str]) -> Iterator[str
                 assert isinstance(res, list)
                 for r in res:
                     assert isinstance(r, list)
-                    pkg = res[1]
+                    pkg = r[1]
                     assert isinstance(pkg, str)
                     if pkg not in seen:
                         yield pkg
