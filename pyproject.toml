@@ -37,7 +37,7 @@ dependencies = [
 ]
 
 [project.scripts]
-pypi-stats = "pypi_stats:main"
+pypi-stats = "pypi_stats.__main__:main"
 
 [project.urls]
 "Source Code" = "https://github.com/jwodder/pypi-stats"
