@@ -1,9 +1,22 @@
-#!/usr/bin/env python3
 """
 Show download stats for PyPI packages
 
 Visit <https://github.com/jwodder/pypi-stats> for more information.
 """
+
+from __future__ import annotations
+from collections.abc import Iterator, Sequence
+import csv
+from dataclasses import asdict, astuple, dataclass
+import json
+from operator import attrgetter
+import sys
+from types import TracebackType
+from typing import Protocol, Self
+from xmlrpc.client import ServerProxy
+import click
+import pypistats
+from txtble import Txtble
 
 __version__ = "0.1.0.dev1"
 __author__ = "John Thorvald Wodder II"
@@ -11,27 +24,35 @@ __author_email__ = "pypi-stats@varonathe.org"
 __license__ = "MIT"
 __url__ = "https://github.com/jwodder/pypi-stats"
 
-from collections import namedtuple
-import csv
-import json
-from operator import attrgetter
-import sys
-from types import TracebackType
-from xmlrpc.client import ServerProxy
-import click
-import pypistats
-from txtble import Txtble
 
-PackageStats = namedtuple("PackageStats", "package last_month last_week last_day")
+@dataclass
+class PackageStats:
+    package: str
+    last_month: int
+    last_week: int
+    last_day: int
+
+
+class Formatter(Protocol):
+    def __enter__(self) -> Self: ...
+
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> bool | None: ...
+
+    def add_row(self, pstats: PackageStats) -> None: ...
 
 
 class CSVFormatter:
     FIELDS = ["package", "last_month", "last_week", "last_day"]
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.out = csv.DictWriter(sys.stdout, self.FIELDS)
 
-    def __enter__(self):
+    def __enter__(self) -> Self:
         self.out.writeheader()
         return self
 
@@ -43,18 +64,18 @@ class CSVFormatter:
     ) -> None:
         return None
 
-    def add_row(self, pstats):
-        self.out.writerow({f: getattr(pstats, f) for f in self.FIELDS})
+    def add_row(self, pstats: PackageStats) -> None:
+        self.out.writerow(asdict(pstats))
 
 
 class TableFormatter:
-    def __init__(self):
+    def __init__(self) -> None:
         self.tbl = Txtble(
             headers=["Package", "Last Month", "Last Week", "Last Day"],
             align=["l", "r", "r", "r"],
         )
 
-    def __enter__(self):
+    def __enter__(self) -> Self:
         return self
 
     def __exit__(
@@ -66,8 +87,8 @@ class TableFormatter:
         if exc_type is None:
             print(self.tbl)
 
-    def add_row(self, pstats):
-        self.tbl.append(pstats)
+    def add_row(self, pstats: PackageStats) -> None:
+        self.tbl.append(astuple(pstats))
 
 
 @click.command(context_settings={"help_option_names": ["-h", "--help"]})
@@ -109,7 +130,9 @@ class TableFormatter:
     help="Show packages belonging to the given PyPI user",
 )
 @click.argument("package", nargs=-1)
-def main(fmt, user, package, sortby):
+def main(
+    fmt: Formatter, user: tuple[str, ...], package: tuple[str, ...], sortby: str
+) -> None:
     """Show download stats for PyPI packages"""
     pkgs = iter_packages(user, package)
     if sortby == "name":
@@ -122,22 +145,23 @@ def main(fmt, user, package, sortby):
             formatter.add_row(s)
 
 
-def iter_packages(users, packages):
+def iter_packages(users: Sequence[str], packages: Sequence[str]) -> Iterator[str]:
     seen = set()
     if users:
         with ServerProxy("https://pypi.org/pypi") as pypi_xml:
             for u in users:
                 for _, pkg in pypi_xml.user_packages(u):
+                    assert isinstance(pkg, str)
                     if pkg not in seen:
                         yield pkg
                         seen.add(pkg)
-    for pkg in packages:
-        if pkg not in seen:
-            yield pkg
-            seen.add(pkg)
+    for p in packages:
+        if p not in seen:
+            yield p
+            seen.add(p)
 
 
-def get_package_stats(package):
+def get_package_stats(package: str) -> PackageStats:
     data = json.loads(pypistats.recent(package, format="json"))
     return PackageStats(
         package=package,
