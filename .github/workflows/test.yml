@@ -21,6 +21,7 @@ jobs:
         python-version:
           - '3.11'
           - '3.12'
+          - '3.13'
         toxenv: [py]
         include:
           - python-version: '3.11'
