@@ -2,7 +2,6 @@ from __future__ import annotations
 from collections.abc import Callable, Iterable, Iterator, Sequence
 import csv
 from dataclasses import asdict, astuple, dataclass
-import json
 from operator import attrgetter
 import sys
 from types import TracebackType
@@ -173,12 +172,12 @@ def iter_packages(users: Sequence[str], packages: Sequence[str]) -> Iterator[str
 
 
 def get_package_stats(package: str) -> PackageStats:
-    data = json.loads(pypistats.recent(package, format="json"))
+    data = pypistats.recent(package, format=None)
     return PackageStats(
         package=package,
-        last_month=data["data"]["last_month"],
-        last_week=data["data"]["last_week"],
-        last_day=data["data"]["last_day"],
+        last_month=data["last_month"],
+        last_week=data["last_week"],
+        last_day=data["last_day"],
     )
 
 
