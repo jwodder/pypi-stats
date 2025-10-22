@@ -1,6 +1,6 @@
 from __future__ import annotations
 import argparse
-from collections.abc import Callable, Iterable, Iterator, Sequence
+from collections.abc import Iterable, Iterator, Sequence
 import csv
 from dataclasses import asdict, astuple, dataclass
 from operator import attrgetter
@@ -84,9 +84,10 @@ def main() -> None:
         description=(
             "Show download stats for PyPI packages.\n"
             "\n"
-            "``pypi-stats`` queries https://pypistats.org for the recent download stats\n"
-            "for each PyPI package named on the command line, outputting the number of\n"
-            "downloads for each one in the last month, week, and day.\n"
+            "`pypi-stats` queries https://pypistats.org for the recent download\n"
+            "stats for each PyPI package named on the command line, outputting\n"
+            "the number of downloads for each one in the last month, week, and\n"
+            "day.\n"
             "\n"
             "Visit <https://github.com/jwodder/pypi-stats> for more information.\n"
         ),
