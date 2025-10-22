@@ -1,5 +1,6 @@
 from __future__ import annotations
-from collections.abc import Callable, Iterable, Iterator, Sequence
+import argparse
+from collections.abc import Iterable, Iterator, Sequence
 import csv
 from dataclasses import asdict, astuple, dataclass
 from operator import attrgetter
@@ -7,7 +8,6 @@ import sys
 from types import TracebackType
 from typing import Protocol, Self
 from xmlrpc.client import ServerProxy
-import click
 import pypistats
 from txtble import Txtble
 from . import __version__
@@ -79,74 +79,76 @@ class TableFormatter:
         self.tbl.append(astuple(pstats))
 
 
-@click.command(context_settings={"help_option_names": ["-h", "--help"]})
-@click.option(
-    "-A",
-    "--sort-alpha",
-    "sortby",
-    flag_value="name",
-    help="Sort packages alphabetically by name",
-)
-@click.option(
-    "-C",
-    "--csv",
-    "fmt",
-    flag_value=CSVFormatter,
-    type=click.UNPROCESSED,
-    default=True,
-    help="Output CSV [default]",
-)
-@click.option(
-    "-N",
-    "--sort-num",
-    "sortby",
-    flag_value="downloads",
-    help="Sort packages by downloads, highest first",
-)
-@click.option(
-    "-T",
-    "--table",
-    "fmt",
-    flag_value=TableFormatter,
-    type=click.UNPROCESSED,
-    help="Output an ASCII table",
-)
-@click.option(
-    "-u",
-    "--user",
-    multiple=True,
-    help="Get stats for packages owned or maintained by the given PyPI user",
-    metavar="USER",
-)
-@click.version_option(
-    __version__,
-    "-V",
-    "--version",
-    message="%(prog)s %(version)s",
-)
-@click.argument("package", nargs=-1)
-def main(
-    fmt: Callable[[], Formatter],
-    user: tuple[str, ...],
-    package: tuple[str, ...],
-    sortby: str,
-) -> None:
-    """
-    Show download stats for PyPI packages.
-
-    ``pypi-stats`` queries https://pypistats.org for the recent download stats
-    for each PyPI package named on the command line, outputting the number of
-    downloads for each one in the last month, week, and day.
-
-    Visit <https://github.com/jwodder/pypi-stats> for more information.
-    """
-    pkgs: Iterable[str] = iter_packages(user, package)
-    if sortby == "name":
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        description=(
+            "Show download stats for PyPI packages.\n"
+            "\n"
+            "`pypi-stats` queries https://pypistats.org for the recent download\n"
+            "stats for each PyPI package named on the command line, outputting\n"
+            "the number of downloads for each one in the last month, week, and\n"
+            "day.\n"
+            "\n"
+            "Visit <https://github.com/jwodder/pypi-stats> for more information.\n"
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    parser.add_argument(
+        "-A",
+        "--sort-alpha",
+        dest="sortby",
+        action="store_const",
+        const="name",
+        help="Sort packages alphabetically by name",
+    )
+    parser.add_argument(
+        "-C",
+        "--csv",
+        dest="fmt",
+        action="store_const",
+        const=CSVFormatter,
+        default=CSVFormatter,
+        help="Output CSV [default]",
+    )
+    parser.add_argument(
+        "-N",
+        "--sort-num",
+        dest="sortby",
+        action="store_const",
+        const="downloads",
+        help="Sort packages by downloads, highest first",
+    )
+    parser.add_argument(
+        "-T",
+        "--table",
+        dest="fmt",
+        action="store_const",
+        const=TableFormatter,
+        help="Output an ASCII table",
+    )
+    parser.add_argument(
+        "-u",
+        "--user",
+        dest="users",
+        action="append",
+        help="Get stats for packages owned or maintained by the given PyPI user",
+        metavar="USER",
+    )
+    parser.add_argument(
+        "-V",
+        "--version",
+        action="version",
+        version=f"%(prog)s {__version__}",
+    )
+    parser.add_argument("package", nargs="*")
+    args = parser.parse_args()
+    pkgs: Iterable[str] = iter_packages(args.users, args.package)
+    if args.sortby == "name":
         pkgs = sorted(pkgs)
     stats: Iterable[PackageStats] = map(get_package_stats, pkgs)
-    if sortby == "downloads":
+    if args.sortby == "downloads":
         stats = sorted(stats, key=attrgetter("last_month"), reverse=True)
-    with fmt() as formatter:
+    with args.fmt() as formatter:
         for s in stats:
             formatter.add_row(s)
 

@@ -35,7 +35,6 @@ classifiers = [
 ]
 
 dependencies = [
-    "click >= 7.0",
     "pypistats ~= 1.8",
     "txtble ~= 0.11",
 ]
