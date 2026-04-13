@@ -36,7 +36,7 @@ classifiers = [
 ]
 
 dependencies = [
-    "pypistats ~= 1.8",
+    "pypistats ~= 1.13",
     "txtble ~= 0.11",
 ]
 
