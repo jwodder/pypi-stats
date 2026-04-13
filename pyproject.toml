@@ -37,7 +37,7 @@ classifiers = [
 
 dependencies = [
     "pypistats ~= 1.8",
-    "txtble ~= 0.11",
+    "txtble ~= 0.12",
 ]
 
 [project.scripts]
