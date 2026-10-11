@@ -11,7 +11,7 @@ users), outputting either a CSV file or an ASCII table.
 Visit <https://github.com/jwodder/pypi-stats> for more information.
 """
 
-__version__ = "0.1.0.dev1"
+__version__ = "0.0.0"
 __author__ = "John Thorvald Wodder II"
 __author_email__ = "pypi-stats@varonathe.org"
 __license__ = "MIT"
